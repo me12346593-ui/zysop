@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>COMMANDER BODY JUDGE // V2.0 FULL BODY</title>
+    <title>COMMANDER BODY JUDGE // V2.1 MATRIX</title>
     <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.js"></script>
     <style>
         :root { --bg: #050505; --green: #00ff41; --gold: #ffd700; --red: #ff3333; --blue: #00bfff; }
@@ -16,42 +16,55 @@
         .med-card { background: #111; border-left: 4px solid #555; margin-bottom: 10px; padding: 10px; }
         .p1 { border-color: var(--gold); }
         .p2 { border-color: var(--blue); }
-        .ban { border-color: var(--red); color: #888; text-decoration: line-through; }
-        .ext { border-color: #fff; } /* 外用药 */
+        .ext { border-color: #fff; }
         
         .badge { display: inline-block; padding: 2px 6px; border-radius: 3px; font-size: 0.8em; margin-right: 5px; font-weight: bold; }
         .badge-p1 { background: var(--gold); color: #000; }
         .badge-p2 { background: var(--blue); color: #000; }
         .badge-ext { background: #fff; color: #000; }
-        .badge-warn { background: var(--red); color: #fff; }
     </style>
 </head>
 <body>
 
-<h1>COMMANDER BODY JUDGE <span style="font-size:0.5em; color:#666">V2.0</span></h1>
+<h1>COMMANDER BODY JUDGE <span style="font-size:0.5em; color:#666">V2.1 MATRIX</span></h1>
 
 <div class="module">
-    <h3>INPUT DATA // 症状锁定</h3>
+    <h3>MODULE 1 // 基础体征</h3>
     <div class="grid-2">
         <div><label>❤️ RHR (静息心率)</label><input type="number" id="rhr" placeholder="e.g. 63"></div>
-        <div><label>💩 大便/屁 (Stool/Gas)</label>
+        <div><label>💩 大便/屁 (Stool)</label>
             <select id="poop">
                 <option value="normal">正常</option>
-                <option value="fart_stink">💨 放屁多/臭鸡蛋味 (食积)</option>
                 <option value="sticky">💩 粘马桶 (湿热)</option>
                 <option value="loose">💩 不成形 (脾寒)</option>
                 <option value="dry">💩 干结 (阴虚)</option>
+                <option value="fart_stink">💨 屁多/臭鸡蛋味</option>
             </select>
         </div>
     </div>
-    <div class="grid-2" style="margin-top:15px">
-        <div><label>📍 核心战区 (Zone)</label>
+    <div style="margin-top:15px">
+        <label>🔥 寒热体感 (Battlefield Condition)</label>
+        <select id="sensation">
+            <option value="mix">🌗 正常/无明显寒热</option>
+            <option value="cold">❄️ 怕冷/手脚凉/喜热饮 (寒)</option>
+            <option value="heat">🔥 怕热/口干/喜冷饮 (热)</option>
+            <option value="damp">💧 身体重/头裹/粘腻 (湿)</option>
+            <option value="pain">⚡ 刺痛/拒按 (实/淤)</option>
+        </select>
+    </div>
+</div>
+
+<div class="module">
+    <h3>MODULE 2 // 战区锁定</h3>
+    <div class="grid-2">
+        <div><label>📍 核心区域 (Zone)</label>
             <select id="part" onchange="updateSpecifics()">
-                <option value="head">🔴 头部/五官 (Head/Face)</option>
-                <option value="neck_chest">🟡 颈肩/胸腹 (Neck/Torso)</option>
-                <option value="limbs">🔵 四肢/关节 (Limbs/Joints)</option>
+                <option value="head">🔴 头部/五官 (Head)</option>
+                <option value="neck_chest">🟡 颈肩/胸/腹 (Torso)</option>
+                <option value="waist">🟣 腰部/肾区 (Waist)</option>
+                <option value="limbs">🔵 四肢/关节 (Limbs)</option>
                 <option value="skin">⚪ 皮肤/痤疮 (Skin)</option>
-                <option value="lower">🟣 下焦/前列腺 (Lower)</option>
+                <option value="lower">🟢 下焦/前列腺 (Lower)</option>
             </select>
         </div>
         <div><label>🎯 精准打击 (Target)</label>
@@ -72,62 +85,62 @@
 
 <script>
 // ==========================================
-// 1. 扩容军火库 (Expanded Arsenal)
+// 1. 扩容军火库
 // ==========================================
 const DRUGS = {
-    // TCM Internal
-    'chuanxiong': { name: "川芎茶调丸", usage: "饭后服用。专治风邪头痛。", type: 'tcm' },
-    'gegen': { name: "葛根汤颗粒", usage: "温水冲服。专治颈椎僵痛。", type: 'tcm' },
-    'xiaochaihu': { name: "小柴胡颗粒", usage: "两餐之间。治忽冷忽热/口苦。", type: 'tcm' },
-    'yupingfeng': { name: "玉屏风散", usage: "饭前服用。增强免疫/防冷风。", type: 'tcm' },
+    // TCM
+    'chuanxiong': { name: "川芎茶调丸", usage: "饭后服用。祛风止痛。", type: 'tcm' },
+    'gegen': { name: "葛根汤颗粒", usage: "温水冲服。解肌通络。", type: 'tcm' },
+    'xiaochaihu': { name: "小柴胡颗粒", usage: "两餐之间。疏肝和胃。", type: 'tcm' },
     'lanqin': { name: "蓝芩口服液", usage: "饭后服用。清热解毒。", type: 'tcm' },
-    'qingwei': { name: "清胃黄连丸", usage: "饭后服用。治上牙火痛。", type: 'tcm' },
-    'muxiang': { name: "木香顺气丸", usage: "饭后服用。治气滞腹痛。", type: 'tcm' },
-    'baohe': { name: "保和丸", usage: "饭后服用。治臭屁/食积。", type: 'tcm' },
-    'duhuo': { name: "独活寄生丸", usage: "饭后服用。治风湿痹痛/关节重。", type: 'tcm' },
-    'shaoyao': { name: "芍药甘草汤", usage: "发作时服用。治抽筋。", type: 'tcm' },
-    'ermiao': { name: "二妙丸", usage: "饭后服用。治下焦湿热。", type: 'tcm' },
+    'qingwei': { name: "清胃黄连丸", usage: "饭后服用。清胃火。", type: 'tcm' },
+    'muxiang': { name: "木香顺气丸", usage: "饭后服用。行气止痛。", type: 'tcm' },
+    'baohe': { name: "保和丸", usage: "饭后服用。消食导滞。", type: 'tcm' },
+    'duhuo': { name: "独活寄生丸", usage: "饭后服用。祛风除湿。", type: 'tcm' },
+    'ermiao': { name: "二妙丸", usage: "饭后服用。清下焦湿热。", type: 'tcm' },
+    'shenqi': { name: "金匮肾气丸", usage: "淡盐水空腹送服。温补肾阳。", type: 'tcm' },
     
-    // Western / External
-    'ibuprofen': { name: "布洛芬 (Ibuprofen)", usage: "饭后/痛时吃。", type: 'west' },
-    'vitc': { name: "维生素C (1000mg)", usage: "每4小时一次 (感冒前兆)。", type: 'west' },
-    'patch': { name: "氟比洛芬凝胶贴膏", usage: "贴患处 (12小时一换)。", type: 'ext' },
-    'erythromycin': { name: "红霉素眼膏", usage: "涂眼睑 (睡前)。", type: 'ext' },
-    'jinhuang': { name: "如意金黄散", usage: "蜂蜜调敷患处 (屁股疖子)。", type: 'ext' },
+    // West/Ext
+    'ibuprofen': { name: "布洛芬 (Ibuprofen)", usage: "饭后服用。止痛。", type: 'west' },
+    'patch': { name: "氟比洛芬凝胶贴膏", usage: "贴患处。", type: 'ext' },
     'adapalene': { name: "维A酸乳膏", usage: "睡前涂 (避光)。", type: 'ext' },
-    'magnesium': { name: "补镁 (Magnesium)", usage: "立即服用。", type: 'west' }
+    'jinhuang': { name: "如意金黄散", usage: "蜂蜜调敷。", type: 'ext' },
+    'erythromycin': { name: "红霉素眼膏", usage: "涂眼睑。", type: 'ext' }
 };
 
 // ==========================================
-// 2. 症状映射 (Specifics Map)
+// 2. 全息地图 (Mapping)
 // ==========================================
 const SPECIFICS_MAP = {
     'head': [
         {val:'migraine', txt:'偏头痛 (两侧/后脑)'},
         {val:'eye_pain', txt:'眼睛痛/麦粒肿'},
-        {val:'nose_pain', txt:'鼻子吸冷气痛 (感冒兆)'},
         {val:'tooth_up', txt:'上牙痛 (胃火)'},
         {val:'tooth_down', txt:'下牙痛 (大肠火)'},
-        {val:'throat', txt:'嗓子痛'}
+        {val:'nose_pain', txt:'鼻腔冷痛 (感冒兆)'}
     ],
     'neck_chest': [
-        {val:'neck', txt:'颈椎痛 (后仰痛)'},
-        {val:'chest_nerve', txt:'含胸胸痛 (神经性)'},
-        {val:'belly_pain', txt:'腹部按压痛 (拒按)'},
-        {val:'belly_ok', txt:'腹部喜按 (虚寒)'}
+        {val:'neck', txt:'颈椎僵痛'},
+        {val:'chest', txt:'含胸胸痛 (神经性)'},
+        {val:'belly_left', txt:'左下腹痛 (气滞/便秘)'},
+        {val:'belly_right', txt:'右下腹隐痛 (湿热)'},
+        {val:'belly_center', txt:'脐周隐痛 (脾寒)'}
     ],
-    'limbs': [
-        {val:'joint_all', txt:'四肢关节游走痛'},
-        {val:'knee_hip', txt:'膝盖/大胯痛 (物理伤)'},
-        {val:'cramp', txt:'左臂/心脏抽筋 (高危)'}
+    'waist': [
+        {val:'waist_strain', txt:'劳累腰酸 (刺痛/僵硬)'},
+        {val:'waist_kidney', txt:'肾虚腰酸 (酸软/喜按)'}
     ],
     'skin': [
-        {val:'acne_face', txt:'面部痤疮'},
-        {val:'acne_butt', txt:'屁股疖子 (骑行)'}
+        {val:'acne_mouth', txt:'嘴周/下巴痤疮 (胃火)'},
+        {val:'acne_nose', txt:'鼻周/额头痤疮 (肺热)'},
+        {val:'acne_butt', txt:'屁股疖子 (坐板疮)'}
+    ],
+    'limbs': [
+        {val:'joint', txt:'关节游走痛'},
+        {val:'knee', txt:'膝盖/大胯痛 (物理伤)'}
     ],
     'lower': [
-        {val:'prostate', txt:'前列腺/尿短赤'},
-        {val:'fart', txt:'放屁臭/多'}
+        {val:'prostate', txt:'前列腺/尿短赤'}
     ]
 };
 
@@ -139,90 +152,86 @@ function updateSpecifics() {
 }
 
 // ==========================================
-// 3. 核心裁决 (Diagnosis Logic)
+// 3. 核心裁决
 // ==========================================
 function diagnose() {
     const part = document.getElementById('part').value;
     const spec = document.getElementById('specific').value;
+    const sens = document.getElementById('sensation').value;
     const poop = document.getElementById('poop').value;
-    const rhr = parseInt(document.getElementById('rhr').value) || 0;
 
-    let title = "";
-    let p1 = null, p2 = null, ext = null, action = "";
+    let title = "", p1 = null, p2 = null, ext = null, action = "";
 
     // --- 路由系统 ---
 
-    // A. 头部/五官
-    if (part === 'head') {
+    // A. 皮肤分区
+    if (part === 'skin') {
+        if (spec === 'acne_mouth') {
+            title = "【胃火上蒸】"; p1 = 'qingwei'; ext = 'adapalene';
+            action = "忌甜食、油炸。多吃绿豆。";
+        } else if (spec === 'acne_nose') {
+            title = "【肺经风热】"; p1 = 'lanqin'; ext = 'adapalene';
+            action = "不吃辣椒，多喝水。";
+        } else if (spec === 'acne_butt') {
+            title = "【湿热淤积】"; p1 = 'ermiao'; ext = 'jinhuang';
+            action = "保持干燥，暂停骑行。";
+        }
+    }
+
+    // B. 腹部分区
+    else if (part === 'neck_chest') {
+        if (spec === 'belly_left') {
+            title = "【肠道气滞】"; p1 = 'muxiang';
+            action = "揉腹，开塞露辅助排便。";
+        } else if (spec === 'belly_right') {
+            title = "【肠道湿热】"; p1 = 'ermiao';
+            action = "若剧痛立即就医(阑尾风险)。清淡饮食。";
+        } else if (spec === 'belly_center') {
+            if (sens === 'cold') {
+                title = "【中焦虚寒】"; p1 = 'xiangsha'; // 没给附子，保守给香砂
+                action = "热水袋热敷。";
+            } else {
+                title = "【食积腹痛】"; p1 = 'baohe';
+                action = "少吃一顿。";
+            }
+        } else if (spec === 'neck') {
+            title = "【颈椎病】"; p1 = 'gegen'; ext = 'patch';
+            action = "热敷后颈。";
+        }
+    }
+
+    // C. 腰痛鉴别
+    else if (part === 'waist') {
+        if (spec === 'waist_strain') {
+            title = "【腰肌劳损/物理伤】"; p1 = 'duhuo'; ext = 'patch';
+            action = "睡硬板床，禁止弯腰提重物。";
+        } else if (spec === 'waist_kidney') {
+            if (sens === 'cold' || sens === 'mix') {
+                title = "【肾阳不足】"; p1 = 'shenqi';
+                action = "艾灸命门，节制性生活。";
+            } else {
+                title = "【肾阴亏虚】"; // 没给六味地黄，用食疗代替
+                action = "多吃黑豆/黑芝麻，避免熬夜。";
+            }
+        }
+    }
+
+    // D. 头部/五官 (复用之前逻辑)
+    else if (part === 'head') {
         if (spec === 'migraine') {
-            title = "【偏头痛/风火上扰】"; p1 = 'chuanxiong'; p2 = 'ibuprofen';
-            action = "避光休息。若伴随忽冷忽热加小柴胡。";
-        } else if (spec === 'eye_pain') {
-            title = "【麦粒肿/肝火】"; ext = 'erythromycin'; p1 = 'lanqin';
-            action = "热敷眼部(促化脓)。";
-        } else if (spec === 'nose_pain') {
-            title = "【风寒侵袭/感冒前兆】"; p1 = 'xiaochaihu'; p2 = 'vitc';
-            action = "喝葱白水，戴口罩，保暖鼻部。";
+            title = "【偏头痛】"; p1 = 'chuanxiong'; p2 = 'ibuprofen';
+            if(sens==='mix') p1='xiaochaihu';
+            action = "避光休息。";
         } else if (spec === 'tooth_up') {
             title = "【胃火牙痛】"; p1 = 'qingwei'; p2 = 'ibuprofen';
-            action = "忌酒辣。";
-        } else if (spec === 'tooth_down') {
-            title = "【大肠火牙痛】"; p1 = 'niuhuang'; // 需人工牛黄
-            action = "多喝水，通便。";
-        } else if (spec === 'throat') {
-            title = "【咽喉肿痛】"; p1 = 'lanqin';
-            action = "淡盐水漱口。";
+            action = "忌酒。";
         }
     }
 
-    // B. 颈肩/胸腹
-    else if (part === 'neck_chest') {
-        if (spec === 'neck') {
-            title = "【颈椎病/太阳经不利】"; p1 = 'gegen'; ext = 'patch';
-            action = "热敷后颈，避免低头。";
-        } else if (spec === 'chest_nerve') {
-            title = "【肋间神经痛/气滞】"; p1 = 'muxiang';
-            action = "扩胸运动，深呼吸。";
-        } else if (spec === 'belly_pain') { // 拒按
-            title = "【气滞血瘀】"; p1 = 'muxiang';
-            action = "揉腹，少吃胀气食物。";
-        }
-    }
-
-    // C. 四肢/关节
-    else if (part === 'limbs') {
-        if (spec === 'joint_all') {
-            title = "【风湿痹痛/头痛前兆】"; p1 = 'duhuo'; p2 = 'ibuprofen';
-            action = "注意防风，可能是偏头痛前兆，提前阻断。";
-        } else if (spec === 'knee_hip') {
-            title = "【运动劳损】"; ext = 'patch';
-            action = "暂停骑行，冰敷(急性)或热敷(慢性)。";
-        } else if (spec === 'cramp') {
-            title = "🚨【高危：电解质紊乱】"; p1 = 'shaoyao'; p2 = 'magnesium';
-            action = "立即停止运动！补钾补镁！若心脏不适立即就医。";
-        }
-    }
-
-    // D. 皮肤
-    else if (part === 'skin') {
-        if (spec === 'acne_butt') {
-            title = "【坐板疮/湿热】"; ext = 'jinhuang'; p1 = 'ermiao';
-            action = "减少骑行时间，保持干燥。";
-        } else if (spec === 'acne_face') {
-            title = "【肺胃热盛】"; ext = 'adapalene';
-            action = "枕巾每日换，忌糖油。";
-        }
-    }
-
-    // E. 放屁/下焦
-    else if (part === 'lower' || poop === 'fart_stink') {
-        if (poop === 'fart_stink') {
-            title = "【食积/消化不良】"; p1 = 'baohe';
-            action = "少吃肉，断食一顿晚餐。";
-        } else if (spec === 'prostate') {
-            title = "【下焦湿热】"; p1 = 'ermiao';
-            action = "温水坐浴。";
-        }
+    // E. 默认/Fallback
+    if (!title) {
+        title = "【数据不足】"; 
+        action = "请完善具体症状。";
     }
 
     render(title, p1, p2, ext, action);
@@ -239,9 +248,9 @@ function render(title, p1Key, p2Key, extKey, actionText) {
     function createCard(key, role) {
         if(!key) return;
         const d = DRUGS[key];
-        if(!d) return; // 容错
+        if(!d) return; 
         let badgeClass = role === 'p1' ? 'badge-p1' : (role === 'p2' ? 'badge-p2' : 'badge-ext');
-        let roleName = role === 'p1' ? '👑 主将' : (role === 'p2' ? '🛡️ 副将' : '🩹 外用/急救');
+        let roleName = role === 'p1' ? '👑 主将' : (role === 'p2' ? '🛡️ 副将' : '🩹 外用');
         
         return `
             <div class="med-card ${role === 'ext' ? 'ext' : (role === 'p1' ? 'p1' : 'p2')}">
